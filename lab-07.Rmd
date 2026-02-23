@@ -1,7 +1,7 @@
 ---
 title: "Lab 07 - Conveying the right message through visualisation"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Anaelle Gackiere"
+date: "02/27/2026"
 output: github_document
 ---
 
@@ -12,25 +12,78 @@ library(tidyverse)
 ```
 
 ### Exercise 1
+Explore its structure and use it to re-construct the misleading visualization.
 
 ```{r misleading-visual}
 
 df <- read_csv("kansas_grouped_rolling_avg.csv")
 
+head(df)
+
+# separate the two groups first
+masked <- df %>% filter(mask_mandate == "Mask")
+unmasked <- df %>% filter(mask_mandate == "No Mask")
+
+
+# scale factor to align the two different ranges
+scale_factor <- max(masked$rolling_avg) / max(unmasked$rolling_avg)
+
+ggplot() +
+  geom_line(data = masked, aes(x = date, y = rolling_avg), color = "orange") +
+  geom_line(data = unmasked, aes(x = date, y = rolling_avg * scale_factor), color = "blue") +
+  scale_y_continuous(
+    name = "Mask mandate (blue)",
+    sec.axis = sec_axis(~ . / scale_factor, name = "No mask mandate (red)")
+  ) +
+  labs(title = "COVID-19 Case Rates in Kansas Counties",
+       x = "Date") +
+  scale_x_date(date_labels = "%m/%d/%Y", date_breaks = "2 days") +
+  theme_minimal() 
 
 ```
 ...
 
 ### Exercise 2
+Make a visualization that more accurately (and honestly) reflects the data and conveys a clear message.
 ```{r my-visual}
+
+# more accurate vis?
+
+ggplot(df, aes(x = date, y = rolling_avg, color = mask_mandate)) +
+  geom_line(alpha = 0.7) +
+  labs(title = "Mask mandate") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+...
+
+### Exercise 3
+What message is more clear in your visualization than it was in the original visualization?
+
+
+### Exercise 4
+What, if any, useful information do these data and your visualization tell us about mask wearing and COVID? It’ll be difficult to set aside what you already know about mask wearing, but you should try to focus only on what this visualization tells. Feel free to also comment on whether that lines up with what you know about mask wearing.
+
+Using the same dataset you constructed, your goal now is to create a new visualization that intentionally conveys the opposite message of your previous, accurate visualization. This exercise is designed to highlight the impact of visualization choices on the interpretation of data. It’s a practical exploration of how changing the presentation can alter the perceived message, underscoring the ethical implications of data visualization.
+
+```{r}
+
 
 
 
 ```
-
-
-
-
 ...
 
-Add exercise headings as needed.
+### Exercise 5
+
+Reflect on the message conveyed by your accurate visualization regarding mask-wearing and COVID-19. Discuss the key factors that contribute to this message, such as the variables used, the scale of the axes, and the type of visualization.
+
+
+### Exercise 6
+Plan Your Opposite Visualization: Briefly determine what opposite message you want to covey. Consider the data you have available (or could easily add).
+
+### Exercise 7
+
+Use visualization techniques to craft a chart or graph that conveys this contrary perspective. Pay careful attention to how different visualization choices, like altering the y-axis scale or changing the chart type, can influence the message received by the audience.
