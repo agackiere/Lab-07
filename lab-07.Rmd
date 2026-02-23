@@ -13,12 +13,23 @@ library(tidyverse)
 
 ### Exercise 1
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r misleading-visual}
+
+df <- read_csv("kansas_grouped_rolling_avg.csv")
+
+
+```
+...
 
 ### Exercise 2
+```{r my-visual}
+
+
+
+```
+
+
+
 
 ...
 
