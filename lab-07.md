@@ -108,26 +108,15 @@ ggplot() +
 
 ### Exercise 3
 
-What message is more clear in your visualization than it was in the
-original visualization?
+In my visualization, it is easier to compare the daily cases of covid
+for no mask mandate counties vs. mask mandate counties.
 
 ### Exercise 4
 
-What, if any, useful information do these data and your visualization
-tell us about mask wearing and COVID? It’ll be difficult to set aside
-what you already know about mask wearing, but you should try to focus
-only on what this visualization tells. Feel free to also comment on
-whether that lines up with what you know about mask wearing.
-
-Using the same dataset you constructed, your goal now is to create a new
-visualization that intentionally conveys the opposite message of your
-previous, accurate visualization. This exercise is designed to highlight
-the impact of visualization choices on the interpretation of data. It’s
-a practical exploration of how changing the presentation can alter the
-perceived message, underscoring the ethical implications of data
-visualization.
-
-…
+These data and my visualization suggests that mask wearing helps prevent
+covid. However, I admit that this is a causal claim; the visual
+communicates that there are fewer COVID cases for mask mandate counties
+compared to those who did not have mask mandates.
 
 ### Exercise 5
 
@@ -136,15 +125,120 @@ mask-wearing and COVID-19. Discuss the key factors that contribute to
 this message, such as the variables used, the scale of the axes, and the
 type of visualization.
 
+The key factors that contributed to my message described above
+included: 1. Using a singly y-axis so that both mask and no mask
+counties could be compared appropriately 2. The line graph works in this
+case because this is time series data. It helps show the trends over
+time for both groups. 3. For the variables, I still used No Mask and
+Mask, but I did not treat them differently when plotting (as compared to
+the first visualization).
+
 ### Exercise 6
 
-Plan Your Opposite Visualization: Briefly determine what opposite
-message you want to covey. Consider the data you have available (or
-could easily add).
+For my opposite visualization, I want to show that counties with mask
+mandates have far more COVID cases than no mask mandates. In this
+scenario, COVID is a hoax, and only a few people in the no mask mandate
+counties have COVID because they are outliers.
 
 ### Exercise 7
 
-Use visualization techniques to craft a chart or graph that conveys this
-contrary perspective. Pay careful attention to how different
-visualization choices, like altering the y-axis scale or changing the
-chart type, can influence the message received by the audience.
+I’m thinking of using a bar chart to demonstrate my message.
+
+``` r
+# first I want to find a day where there's a big gap between Mask and No Mask cases.
+df %>%
+  pivot_wider(names_from = mask_mandate, values_from = rolling_avg) %>%
+  mutate(gap = Mask - `No Mask`) %>%
+  arrange(desc(gap))
+```
+
+    ## # A tibble: 23 × 4
+    ##    date        Mask `No Mask`   gap
+    ##    <date>     <dbl>     <dbl> <dbl>
+    ##  1 2020-07-12  24.3      9.52  14.8
+    ##  2 2020-07-21  20.5      8.34  12.2
+    ##  3 2020-07-20  19.8      8.34  11.4
+    ##  4 2020-07-23  19.0      8.26  10.8
+    ##  5 2020-07-22  19.0      8.49  10.6
+    ##  6 2020-07-18  19.7      9.33  10.4
+    ##  7 2020-07-19  19.1      8.82  10.3
+    ##  8 2020-07-15  19.8      9.55  10.3
+    ##  9 2020-07-13  19.0      8.80  10.2
+    ## 10 2020-07-24  19.7      9.70  10.0
+    ## # ℹ 13 more rows
+
+``` r
+# now I'm plotting this day as a bar chart for my "propaganda piece"
+covid_hoax <- df %>% filter(date == as.Date("2020-07-12"))
+
+ggplot(covid_hoax, aes(x = mask_mandate, y = rolling_avg, fill = mask_mandate)) +
+  geom_bar(stat = "identity", width = 0.5) +
+  scale_fill_manual(values = c("Mask" = "orange", "No Mask" = "blue")) +
+  scale_y_continuous(limits = c(8, 25), oob = scales::squish) +
+  labs(
+    title = "Mask Counties Have FAR More COVID Cases",
+    subtitle = "Covid Cases per 100K Population (July 12, 2020)\nSource: Kansas Department of Health and Environment",
+    x = NULL,
+    y = "Covid Cases per 100K Population",
+    fill = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+![](lab-07_files/figure-gfm/opposite-visual-1.png)<!-- -->
+
+That’s a bit boring though, so I decided to try out the patchwork
+library and create a better propaganda piece.
+
+``` r
+library(patchwork)
+
+# bar chart for the one day
+p1 <- ggplot(covid_hoax, aes(x = mask_mandate, y = rolling_avg, fill = mask_mandate)) +
+  geom_bar(stat = "identity", width = 0.5) +
+  scale_fill_manual(values = c("Mask" = "orange", "No Mask" = "blue")) +
+  scale_y_continuous(limits = c(8, 25), oob = scales::squish) +
+  labs(
+    title = "Mask Counties Have FAR More Cases",
+    subtitle = "July 12, 2020",
+    x = NULL,
+    y = "Daily Cases per 100K",
+    fill = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# bad line graph for rolling average
+
+scale_factor2 <- max(unmasked$rolling_avg) / max(masked$rolling_avg) * 1.8 # this is for the axes
+
+p2 <- ggplot() +
+  geom_line(data = masked, aes(x = date, y = rolling_avg), color = "orange", linewidth = 1) +
+  geom_line(data = unmasked, aes(x = date, y = rolling_avg * scale_factor2), color = "blue", linewidth = 1) +
+  scale_y_continuous(
+    name = "Mask",
+    sec.axis = sec_axis(~ . / scale_factor2, name = "No Mask") # note to self - this is the  y axis on the right
+  ) +
+  coord_cartesian(ylim = c(5, 30)) + # this helps manipulate the look
+  labs(
+    title = "Masks Causing Skyrocketing Cases!!!",
+    subtitle = "7-Day Rolling Average",
+    x = NULL
+  ) +
+  scale_x_date(date_labels = "%m/%d/%y", date_breaks = "3 days") +
+  theme_minimal() +
+  theme(
+    axis.title.y.left = element_text(color = "orange"),
+    axis.title.y.right = element_text(color = "blue"),
+    axis.text.x = element_text(angle = 45, vjust = 0.5),
+    panel.grid.minor = element_blank()
+  )
+
+p1 + p2 + plot_annotation(
+  title = "COVID Is A Hoax: Masks Are Making Things Worse!",
+  theme = theme(plot.title = element_text(size = 16, hjust = 0.5, face = "bold"))
+)
+```
+
+![](lab-07_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
