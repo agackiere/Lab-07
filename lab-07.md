@@ -81,6 +81,29 @@ ggplot() +
 Make a visualization that more accurately (and honestly) reflects the
 data and conveys a clear message.
 
+``` r
+ggplot() +
+  geom_line(data = masked, aes(x = date, y = rolling_avg, color = "Mask")) +
+  geom_line(data = unmasked, aes(x = date, y = rolling_avg, color = "No Mask")) +
+  scale_color_manual(values = c("Mask" = "orange", "No Mask" = "blue")) +
+  labs(
+    title = "Kansas COVID-19 7-Day Rolling Average of Daily Cases/Per 100K Population",
+    subtitle = "Mask Counties Vs. No-Mask Mandate Counties\nSource: Kansas Department of Health and Environment",
+    x = NULL,
+    y = "Daily Cases per 100K Population",
+    color = NULL
+  ) +
+  scale_x_date(date_labels = "%m/%d/%Y", date_breaks = "1 day") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 75, vjust = 0.5),
+    panel.grid.minor = element_blank(),
+    legend.position = "right"
+  )
+```
+
+![](lab-07_files/figure-gfm/my-visual-1.png)<!-- -->
+
 …
 
 ### Exercise 3

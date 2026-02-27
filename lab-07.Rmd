@@ -57,31 +57,42 @@ ggplot() +
 Make a visualization that more accurately (and honestly) reflects the data and conveys a clear message.
 ```{r my-visual}
 
+ggplot() +
+  geom_line(data = masked, aes(x = date, y = rolling_avg, color = "Mask")) +
+  geom_line(data = unmasked, aes(x = date, y = rolling_avg, color = "No Mask")) +
+  scale_color_manual(values = c("Mask" = "orange", "No Mask" = "blue")) +
+  labs(
+    title = "Kansas COVID-19 7-Day Rolling Average of Daily Cases/Per 100K Population",
+    subtitle = "Mask Counties Vs. No-Mask Mandate Counties\nSource: Kansas Department of Health and Environment",
+    x = NULL,
+    y = "Daily Cases per 100K Population",
+    color = NULL
+  ) +
+  scale_x_date(date_labels = "%m/%d/%Y", date_breaks = "1 day") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 75, vjust = 0.5),
+    panel.grid.minor = element_blank(),
+    legend.position = "right"
+  )
 
 ```
 
 ...
 
 ### Exercise 3
-What message is more clear in your visualization than it was in the original visualization?
 
+In my visualization, it is easier to compare the daily cases of covid for no mask mandate counties vs. mask mandate counties. 
 
 ### Exercise 4
-What, if any, useful information do these data and your visualization tell us about mask wearing and COVID? It’ll be difficult to set aside what you already know about mask wearing, but you should try to focus only on what this visualization tells. Feel free to also comment on whether that lines up with what you know about mask wearing.
 
-Using the same dataset you constructed, your goal now is to create a new visualization that intentionally conveys the opposite message of your previous, accurate visualization. This exercise is designed to highlight the impact of visualization choices on the interpretation of data. It’s a practical exploration of how changing the presentation can alter the perceived message, underscoring the ethical implications of data visualization.
-
-```{r opposite message}
-
-
-
-
-```
-...
+These data and my visualization suggests that mask wearing helps prevent covid. However, I admit that this is a causal claim; the visual communicates that there are fewer COVID cases for mask mandate counties compared to those who did not have mask mandates.   
 
 ### Exercise 5
 
 Reflect on the message conveyed by your accurate visualization regarding mask-wearing and COVID-19. Discuss the key factors that contribute to this message, such as the variables used, the scale of the axes, and the type of visualization.
+
+
 
 
 ### Exercise 6
