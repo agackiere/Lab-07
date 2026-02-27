@@ -25,20 +25,30 @@ masked <- df %>% filter(mask_mandate == "Mask")
 unmasked <- df %>% filter(mask_mandate == "No Mask")
 
 
-# scale factor to align the two different ranges
-scale_factor <- max(masked$rolling_avg) / max(unmasked$rolling_avg)
+# scale factor to align the two different ranges. I played around with the scale factor to 
+  # make the lines overlap like they did in the graph 
+
+scale_factor <- max(masked$rolling_avg) / max(unmasked$rolling_avg) * 0.9
 
 ggplot() +
   geom_line(data = masked, aes(x = date, y = rolling_avg), color = "orange") +
   geom_line(data = unmasked, aes(x = date, y = rolling_avg * scale_factor), color = "blue") +
   scale_y_continuous(
-    name = "Mask mandate (blue)",
-    sec.axis = sec_axis(~ . / scale_factor, name = "No mask mandate (red)")
+    name = "Mask",
+    limits = c(14, 28),
+    sec.axis = sec_axis(~ . / scale_factor, name = "No Mask", breaks = seq(4, 14, by = 2))
   ) +
-  labs(title = "COVID-19 Case Rates in Kansas Counties",
-       x = "Date") +
-  scale_x_date(date_labels = "%m/%d/%Y", date_breaks = "2 days") +
-  theme_minimal() 
+  labs(
+    title = "Kansas COVID-19 7-Day Rolling Average of Daily Cases/Per 100K Population",
+    subtitle = "Mask Counties Vs. No-Mask Mandate Counties\nSource: Kansas Department of Health and Environment",
+    x = NULL
+  ) +
+  scale_x_date(date_labels = "%m/%d/%Y", date_breaks = "1 day") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 75, vjust = 0.5),
+    panel.grid.minor = element_blank()
+  )
 
 ```
 ...
@@ -47,13 +57,6 @@ ggplot() +
 Make a visualization that more accurately (and honestly) reflects the data and conveys a clear message.
 ```{r my-visual}
 
-# more accurate vis?
-
-ggplot(df, aes(x = date, y = rolling_avg, color = mask_mandate)) +
-  geom_line(alpha = 0.7) +
-  labs(title = "Mask mandate") +
-  theme_minimal() +
-  theme(legend.position = "none")
 
 ```
 
@@ -68,7 +71,7 @@ What, if any, useful information do these data and your visualization tell us ab
 
 Using the same dataset you constructed, your goal now is to create a new visualization that intentionally conveys the opposite message of your previous, accurate visualization. This exercise is designed to highlight the impact of visualization choices on the interpretation of data. It’s a practical exploration of how changing the presentation can alter the perceived message, underscoring the ethical implications of data visualization.
 
-```{r}
+```{r opposite message}
 
 
 
